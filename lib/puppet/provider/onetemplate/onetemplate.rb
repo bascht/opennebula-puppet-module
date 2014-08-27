@@ -1,13 +1,43 @@
 require 'rexml/document'
 require 'tempfile'
 require 'erb'
+require 'puppet/util/opennebula'
 
 Puppet::Type.type(:onetemplate).provide(:onetemplate) do
   desc "onetemplate provider"
+  extend Puppet::Util::Opennebula::CLI
+  extend Puppet::Util::Opennebula::Properties
 
   commands :onetemplate => "onetemplate"
 
   mk_resource_methods
+
+  property_map :cpu     => "VMTEMPLATE/TEMPLATE/CPU",
+    :memory             => "VMTEMPLATE/TEMPLATE/MEMORY",
+    :vcpu               => "VMTEMPLATE/TEMPLATE/VCPU",
+    :os_kernel          => "VMTEMPLATE/TEMPLATE/OS/KERNEL",
+    :os_initrd          => "VMTEMPLATE/TEMPLATE/OS/INITRD",
+    :os_arch            => "VMTEMPLATE/TEMPLATE/OS/ARCH",
+    :os_root            => "VMTEMPLATE/TEMPLATE/OS/ROOT",
+    :os_kernel_cmd      => "VMTEMPLATE/TEMPLATE/OS/KERNELCMD",
+    :os_bootloader      => "VMTEMPLATE/TEMPLATE/OS/BOOTLOADER",
+    :os_boot            => "VMTEMPLATE/TEMPLATE/OS/BOOT",
+    :acpi               => "VMTEMPLATE/TEMPLATE/FEATURES/ACPI",
+    :pae                => "VMTEMPLATE/TEMPLATE/FEATURES/PAE",
+    :pci_bridge         => "VMTEMPLATE/TEMPLATE/FEATURES/PCI_BRIDGE",
+    :disks              => "VMTEMPLATE/TEMPLATE/DISK/IMAGE",
+    :nics               => "VMTEMPLATE/TEMPLATE/NIC/NETWORK",
+    :nic_model          => "VMTEMPLATE/TEMPLATE/NIC/MODEL",
+    :graphics_type      => "VMTEMPLATE/TEMPLATE/GRAPHICS/TYPE",
+    :graphics_listen    => "VMTEMPLATE/TEMPLATE/GRAPHICS/LISTEN",
+    :graphics_port      => "VMTEMPLATE/TEMPLATE/GRAPHICS/PORT",
+    :graphics_passwd    => "VMTEMPLATE/TEMPLATE/GRAPHICS/PASSWORD",
+    :graphics_keymap    => "VMTEMPLATE/TEMPLATE/GRAPHICS/KEYMAP",
+    :context_ssh        => "VMTEMPLATE/TEMPLATE/CONTEXT/SSH",
+    :context_ssh_pubkey => "VMTEMPLATE/TEMPLATE/CONTEXT/SSH_PUBLIC_KEY",
+    :context_network    => "VMTEMPLATE/TEMPLATE/CONTEXT/NETWORK",
+    :context_onegate    => "VMTEMPLATE/TEMPLATE/CONTEXT/ONEGATE",
+    :context_files      => "VMTEMPLATE/TEMPLATE/CONTEXT/FILES_DS"
 
   # Create a VM template with onetemplate by passing in a temporary template definition file.
   def create
@@ -139,109 +169,5 @@ EOF
         resources[name].provider = provider
       end
     end
-  end
-
-  # login credentials
-  def self.login
-    credentials = File.read('/var/lib/one/.one/one_auth').strip.split(':')
-    user = credentials[0]
-    password = credentials[1]
-    login = " --user #{user} --password #{password}"
-    login
-  end
-
-  # setters
-  def memory=(value)
-      raise "Can not yet modify memory on a template"
-  end
-  def cpu=(value)
-      raise "Can not yet modify cpu on a template"
-  end
-  def vcpu=(value)
-      raise "Can not yet modify vcpu on a template"
-  end
-  def os_kernel=(value)
-      raise "Can not modify kernel on a template"
-  end
-  def os_initrd=(value)
-      raise "Can not modify initrd on a template"
-  end
-  def os_arch=(value)
-      raise "Can not modify arch on a template"
-  end
-  def os_root=(value)
-      raise "Can not modify root device on a template"
-  end
-  def os_kernel_cmd=(value)
-      raise "Can not modify kernel cmd on a template"
-  end
-  def os_bootloader=(value)
-      raise "Can not modify booloader options on a template"
-  end
-  def os_boot=(value)
-      raise "Can not modify boot device on a template"
-  end
-  def acpi=(value)
-      raise "Can not modify acpi on a template"
-  end
-  def pae=(value)
-      raise "Can not modify pae on a template"
-  end
-  def pci_bridge=(value)
-      raise "Can not modify pci_bridge on a template"
-  end
-  def disks=(value)
-      raise "Can not yet modify disks on a template"
-  end
-  def nics=(value)
-      #raise "Can not yet modify networks on a template"
-  end
-  def nic_model=(value)
-      raise "Can not modify network model on a template"
-  end
-  def graphics_type=(value)
-      raise "Can not modify graphics type on a template"
-  end
-  def graphics_listen=(value)
-      raise "Can not yet modify graphics listen port on a template"
-  end
-  def graphics_port=(value)
-      raise "Can not modify graphics_port on a template"
-  end
-  def grahics_passwd=(value)
-      raise "Can not yet modify graphics password on a template"
-  end
-  def graphics_keymap=(value)
-      raise "Can not yet modify graphics keymap on a template"
-  end
-  def context=(value)
-      #raise "Can not yet modify context hashes on a template"
-  end
-  def context_ssh=(value)
-      raise "Can not yet modify ssh context on a template"
-  end
-  def context_ssh_pubkey=(value)
-      raise "Can not yet modify root ssh pub key context on a template"
-  end
-  def context_network=(value)
-      raise "Can not yet modify network context on a template"
-  end
-  def context_onegate=(value)
-      raise "Can not modify onegate context on a template"
-  end
-  def context_files=(value)
-      #raise "Can not yet modify context files on a template"
-  end
-  def context_variables=(value)
-      raise "Can not yet modify context variables on a template"
-  end
-  def context_placement_host=(value)
-      raise "Can not yet modify host placement context on a template"
-  end
-  def context_placement_cluster=(value)
-      raise "Can not yet modify cluster placement context on a template"
-  end
-  def context_policy=(value)
-      raise "Can not yet modify placement policy context on a template"
   end
 end
