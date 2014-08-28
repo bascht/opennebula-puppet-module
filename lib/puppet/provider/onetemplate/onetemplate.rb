@@ -5,7 +5,8 @@ require 'puppet/util/opennebula'
 
 Puppet::Type.type(:onetemplate).provide(:onetemplate) do
   desc "onetemplate provider"
-  extend Puppet::Util::Opennebula::CLI
+
+  include Puppet::Util::Opennebula::CLI
   extend Puppet::Util::Opennebula::Properties
 
   commands :onetemplate => "onetemplate"
@@ -41,23 +42,19 @@ Puppet::Type.type(:onetemplate).provide(:onetemplate) do
 
   # Create a VM template with onetemplate by passing in a temporary template definition file.
   def create
+    content = Puppet::Util::Opennebula::Templates.onetemplate.result(binding)
     file = Tempfile.new("onetemplate-#{resource[:name]}")
-    template = ERB.new(Puppet::Util::Opennebula::Templates.onetemplate)
-    tempfile = template.result(binding)
-    file.write(tempfile)
+    file.write content
     file.close
-    self.debug "Creating template using #{tempfile}"
-    output = "onetemplate create #{file.path} ", self.class.login
-return output
-    `#{output}`
+    self.debug "Creating template using #{content}"
+    self.invoke 'create', file.path
     file.delete
     @property_hash[:ensure] = :present
   end
 
   # Destroy a VM using onevm delete
   def destroy
-    output = "onetemplate delete #{resource[:name]} ", self.class.login
-    `#{output}`
+    self.invoke 'delete', resource[:name]
     @property_hash.clear
   end
 
@@ -116,5 +113,6 @@ return output
         resources[name].provider = provider
       end
     end
+    self.class.onetemplate_list().include?(resource[:name])
   end
 end
